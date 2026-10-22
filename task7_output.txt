@@ -1,0 +1,17 @@
+TASK 7: ARITHMETIC INTENSITY VS MEMORY BOTTLENECKS
+Elements: 30,000,000
+Available logical CPUs: 16
+
+Kernel                         Cores     Time (s)      Speedup   Efficiency
+---------------------------------------------------------------------------
+Kernel A - Memory Copy             1       6.4234       1.000x       1.000
+Kernel A - Memory Copy             2       3.7538       1.711x       0.856
+Kernel A - Memory Copy            16       3.7059       1.733x       0.108
+Kernel B - Trigonometry            1      20.3778       1.000x       1.000
+Kernel B - Trigonometry            2       9.9156       2.055x       1.028
+Kernel B - Trigonometry           16       3.9256       5.191x       0.324
+
+SCALING ANALYSIS
+Kernel A shows limited scaling at higher core counts; memory bandwidth saturation is a possible cause.
+Kernel B performs more arithmetic per element and may scale differently from Kernel A.
+Process creation and result transfer add overhead to both tests.
