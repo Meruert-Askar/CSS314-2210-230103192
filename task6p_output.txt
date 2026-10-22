@@ -1,0 +1,14 @@
+Task 6: Atomic CAS vs. Mutex
+Threads: 8
+Increments per thread: 100,000
+Total operations: 800,000
+
+Mutex final counter: 800,000
+Mutex Execution Time: 301.933 ms
+Mutex Throughput: 2649594.45 ops/sec
+
+Atomic CAS final counter: 800,000
+Atomic CAS Execution Time: 44966.726 ms
+Atomic CAS Throughput: 17790.93 ops/sec
+
+Throughput Ratio (CAS / Mutex): 0.0067
