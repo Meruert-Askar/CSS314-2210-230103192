@@ -1,95 +1,122 @@
+
 import os
-import sys
 import time
+import sys
+import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 
-ITERATIONS = 5_000_000
+STUDENT_ID = 230103192
+SIZE = 2_000_000
+WORKERS = min(4, os.cpu_count() or 1)
 
 
-def get_worker_count():
-    if len(sys.argv) > 1:
-        return int(sys.argv[1])
-    return os.cpu_count() or 1
+def serial_scan(data):
+    output = np.empty_like(data)
+    total = 0
+
+    for i in range(len(data)):
+        total += int(data[i])
+        output[i] = total
+
+    return output
 
 
-def run_unpadded(shared_counts, index):
-    for _ in range(ITERATIONS):
-        shared_counts[index] += 1
+def calculate_chunk(args):
+    data, start, end = args
+    chunk = data[start:end]
+    output = np.cumsum(chunk, dtype=np.int64)
+    return output, int(output[-1])
 
 
-def run_local(counts, index):
-    local_count = 0
-    for _ in range(ITERATIONS):
-        local_count += 1
-    counts[index] = local_count
+def parallel_scan(data):
+    chunk_size = (len(data) + WORKERS - 1) // WORKERS
+    ranges = [
+        (start, min(start + chunk_size, len(data)))
+        for start in range(0, len(data), chunk_size)
+    ]
 
+    with ThreadPoolExecutor(max_workers=WORKERS) as executor:
+        results = list(
+            executor.map(
+                calculate_chunk,
+                [(data, start, end) for start, end in ranges]
+            )
+        )
 
-def run_benchmark(workers, function, counts):
-    start = time.perf_counter()
+    local_outputs = [result[0] for result in results]
+    chunk_sums = [result[1] for result in results]
 
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = [
-            executor.submit(function, counts, i)
-            for i in range(workers)
-        ]
-        for future in futures:
-            future.result()
+    offsets = [0] * len(chunk_sums)
+    running_total = 0
 
-    return time.perf_counter() - start
+    for i, chunk_sum in enumerate(chunk_sums):
+        offsets[i] = running_total
+        running_total += chunk_sum
+
+    output = np.empty_like(data)
+
+    for i, (start, end) in enumerate(ranges):
+        output[start:end] = local_outputs[i] + offsets[i]
+
+    return output
 
 
 def main():
-    workers = get_worker_count()
+    rng = np.random.default_rng(STUDENT_ID)
+    data = rng.integers(1, 11, size=SIZE, dtype=np.int64)
 
-    if workers < 1:
-        raise ValueError("Worker count must be at least 1")
+    print(f"Student ID: {STUDENT_ID}", flush=True)
+    print(f"Array size: {SIZE:,}", flush=True)
+    print(f"Workers: {WORKERS}", flush=True)
 
-    shared_counts = [0] * workers
-    unpadded_time = run_benchmark(
-        workers, run_unpadded, shared_counts
+    print("Running serial scan...", flush=True)
+    start = time.perf_counter()
+    serial_output = serial_scan(data)
+    serial_time = (time.perf_counter() - start) * 1000
+
+    print("Running parallel scan...", flush=True)
+    start = time.perf_counter()
+    parallel_output = parallel_scan(data)
+    parallel_time = (time.perf_counter() - start) * 1000
+
+    try:
+        assert parallel_output[-1] == serial_output[-1]
+        verification = "PASS"
+    except AssertionError:
+        verification = "FAIL"
+
+        output_text = (
+            f"Serial Time (ms): {serial_time:.3f}\n"
+            f"Parallel Time (ms): {parallel_time:.3f}\n"
+            f"Speedup: {serial_time / parallel_time:.3f}x\n"
+            f"Verification Status: {verification}\n"
+        )
+
+        print(output_text)
+
+        with open("task3_output.txt", "w", encoding="utf-8") as file:
+            file.write(output_text)
+
+        sys.exit(1)
+
+    speedup = serial_time / parallel_time if parallel_time else 0
+
+    output_text = (
+        "TASK 3: Prefix Scan (Step Efficiency vs. Work Efficiency)\n"
+        f"Student ID: {STUDENT_ID}\n"
+        f"Array size: {SIZE:,}\n"
+        f"Workers: {WORKERS}\n"
+        f"Serial Time (ms): {serial_time:.3f}\n"
+        f"Parallel Time (ms): {parallel_time:.3f}\n"
+        f"Speedup: {speedup:.3f}x\n"
+        f"Verification Status: {verification}\n"
+        f"Final prefix sum: {serial_output[-1]}\n"
     )
 
-    padded_counts = [0] * workers
-    padded_time = run_benchmark(
-        workers, run_local, padded_counts
-    )
+    print("\n" + output_text)
 
-    local_counts = [0] * workers
-    local_time = run_benchmark(
-        workers, run_local, local_counts
-    )
-
-    expected = workers * ITERATIONS
-
-    assert sum(shared_counts) == expected
-    assert sum(padded_counts) == expected
-    assert sum(local_counts) == expected
-
-    lines = [
-        "TASK 3: FALSE SHARING BENCHMARK",
-        f"Workers: {workers}",
-        f"Iterations per worker: {ITERATIONS:,}",
-        "",
-        f"{'Variant':<28} {'Wall Time (s)':>15}",
-        "-" * 44,
-        f"{'Unpadded Shared':<28} {unpadded_time:>15.6f}",
-        f"{'Padded / Local':<28} {padded_time:>15.6f}",
-        f"{'Local + final write':<28} {local_time:>15.6f}",
-        "",
-        f"Execution ratio (Unpadded / Padded): {unpadded_time / padded_time:.4f}x",
-        f"Execution ratio (Unpadded / Local): {unpadded_time / local_time:.4f}x",
-        "",
-        f"Expected total increments: {expected:,}",
-        f"Unpadded total: {sum(shared_counts):,}",
-        f"Padded total: {sum(padded_counts):,}",
-        f"Local total: {sum(local_counts):,}",
-    ]
-
-    output = "\n".join(lines)
-    print(output)
-
-    with open("task3_output.txt", "w", encoding="utf-8") as file:
-        file.write(output + "\n")
+    with open("task3p_output.txt", "w", encoding="utf-8") as file:
+        file.write(output_text)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+TASK 3: Prefix Scan (Step Efficiency vs. Work Efficiency)
+Student ID: 230103192
+Array size: 2,000,000
+Workers: 4
+Serial Time (ms): 937.490
+Parallel Time (ms): 26.166
+Speedup: 35.828x
+Verification Status: PASS
+Final prefix sum: 10998976
