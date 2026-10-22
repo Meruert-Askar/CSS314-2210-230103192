@@ -1,0 +1,14 @@
+TASK 5: THE OVERHEAD CROSSOVER POINT
+Available logical CPUs: 16
+Repeats per test: 3
+
+           N     Serial (s)   Process pool (s)      Speedup             Result
+------------------------------------------------------------------------------
+         100       0.000010           0.019798       0.001x      SERIAL FASTER
+       1,000       0.000196           0.020804       0.009x      SERIAL FASTER
+      10,000       0.000907           0.020414       0.044x      SERIAL FASTER
+     100,000       0.009428           0.037142       0.254x      SERIAL FASTER
+   1,000,000       0.114071           0.209814       0.544x      SERIAL FASTER
+  10,000,000       1.073161           2.174266       0.494x      SERIAL FASTER
+
+No crossover found: process pool was not faster at any tested size.
