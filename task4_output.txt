@@ -1,0 +1,11 @@
+TASK 4: WORK STEALING & SCHEDULING UNDER SKEW
+Items: 1000
+Workers: 4
+Dynamic chunk size: 1
+
+Strategy                     Total Time (s)    Finish Delta (s)
+---------------------------------------------------------------
+Static chunks                      0.340234            0.017123
+Dynamic scheduling                 0.332337            0.001112
+
+Speedup (Static / Dynamic): 1.0238x
