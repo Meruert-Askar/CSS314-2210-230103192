@@ -1,0 +1,7 @@
+C:\Users\Shald\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Shald\Downloads\task2.py
+Student ID: 230103192
+OS: Windows-10-10.0.26200-SP0
+CPU model/platform details: AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD
+Logical cores detected: 16
+Array elements: 20000000
+Worker counts: [1, 2, 4, 16, 32]

@@ -1,0 +1,10 @@
+C:\Users\Shald\AppData\Local\Programs\Python\Python311\python.exe C:\Users\Shald\Downloads\task1.py
+Student ID: 230103367
+OS: Windows-10-10.0.26200-SP0
+CPU model/platform details: AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD
+Logical cores detected: 16
+Element count: 20000000
+Mathematical sum: 10001559.942238638178
+Standard deviation: 0.288659798164
+Wall-clock execution time (ms): 14990.067
+Process finished with exit code 1
