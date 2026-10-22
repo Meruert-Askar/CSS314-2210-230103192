@@ -45,7 +45,7 @@ def benchmark(shared_name, worker_count):
     return math.fsum(partial_sums), elapsed
 
 
-def main():
+if __name__ == "__main__":
     max_cores = os.cpu_count() or 1
     worker_counts = [1, 2, 4, max_cores, max_cores * 2]
 
