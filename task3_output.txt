@@ -1,0 +1,17 @@
+TASK 3: FALSE SHARING BENCHMARK
+Workers: 16
+Iterations per worker: 5,000,000
+
+Variant                        Wall Time (s)
+--------------------------------------------
+Unpadded Shared                     9.237517
+Padded / Local                      4.966423
+Local + final write                 5.080883
+
+Execution ratio (Unpadded / Padded): 1.8600x
+Execution ratio (Unpadded / Local): 1.8181x
+
+Expected total increments: 80,000,000
+Unpadded total: 80,000,000
+Padded total: 80,000,000
+Local total: 80,000,000
