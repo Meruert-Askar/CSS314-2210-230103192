@@ -1,0 +1,15 @@
+TASK 5: Thread Oversubscription Threshold
+Logical CPU cores: 16
+Tasks: 10,000
+Hash rounds per task: 500
+
+   Pool Size    Execution Time (ms)      Speedup             Status
+--------------------------------------------------------------------
+           1               6610.524       1.000x           BASELINE
+           8               7044.369       0.938x    WORSENING START
+          16               7167.646       0.922x             SLOWER
+          32               7264.533       0.910x             SLOWER
+          64               6544.776       1.010x             FASTER
+         256               6188.718       1.068x             FASTER
+
+First observed worsening: pool size 8.
